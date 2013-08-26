@@ -14,6 +14,10 @@
 #define XMEM_START      ((void *)0x2200)
 #define XMEM_END        ((void *)0xffff)
 
+/* The address space to use for unshadowed memory */
+#define XMEM_SHADOWED_START ((void *)0x8000)
+#define XMEM_SHADOWED_END   ((void *)0xA000)
+
 struct bank_heap_state {
     void *__brkval;             /* Pointer between __malloc_heap_start and __malloc_heap_end, shows growth. */
     void *__flp;                /* Pointer to the free block list that malloc handles. */
@@ -54,6 +58,47 @@ static void _xmem_load_bank_state (struct bank_heap_state *bs) {
     __flp = bs->__flp;
     __malloc_heap_start = bs->__malloc_heap_start;
     __malloc_heap_end = bs->__malloc_heap_end;
+}
+
+/**
+ * @docstring
+ * Unshadow the lower 8KB of the extended memory and return a pointer that
+ * you can use to access it. You have to call the xmem_shadow_lower_memory when done.
+ * The pointer returned is the start of your 8KB block of memory. */
+void *xmem_unshadow_lower_memory (void) {
+    /* Save current bank state */
+    _xmem_save_bank_state(&_bank_state[_current_bank]);
+
+    /* Configures PORTC pins as output pins. */
+    DDRC = 0xff;
+
+    /* Port C has all 0s now. */
+    PORTC = 0x00;
+
+    /* Release the 5,6,7 pins from extended memory addressing duty. They are still
+       addressing memory, they are just always set to 0 and that will leave us with
+       only 13 pins (8KB) of address in external memory. Since these pins are zeroed out,
+       you will be effectively addressing the lower 8KB of external memory. */
+    XMCRB = (1 << XMM0) | (1 << XMM1);
+
+    return XMEM_SHADOWED_START;
+}
+
+/**
+ * @docstring
+ * Shadow the lower 8KB of the extended memory and set normal addressing pins. */
+void xmem_shadow_lower_memory (void) {
+    /* Configures PORTC pins as output pins. */
+    DDRC = 0xff;
+
+    /* Port C has all 0s now. */
+    PORTC = 0x00;
+
+    /* Set every pin to regular memory addressing duty. */
+    XMCRB = 0;
+
+    /* Save current bank state */
+    _xmem_load_bank_state(&_bank_state[_current_bank]);
 }
 
 /**
