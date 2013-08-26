@@ -36,6 +36,17 @@ the external memory.
 This will save the system heap state and return the heap to the external memory using the current bank.
 Now any time you switch banks again the heap will be restored as well to use that bank.
 
+`void *xmem_unshadow_lower_memory (void)`
+
+Unshadow the lower 8KB of the extended memory and return a pointer that you can use to access it. You have
+to call the xmem_shadow_lower_memory when done otherwise access to external memory won't work. The pointer
+returned is the start of your 8KB block of memory.
+
+`void xmem_shadow_lower_memory (void)`
+
+Shadow the lower 8KB of the extended memory and set normal addressing mode. You have to call this function
+after calling `xmem_unshadow_lower_memory` so you can address extended memory normally.
+
 # Configuration
 
 You can, and must, configure the behavior of this code by changing some `#define` statements in the
