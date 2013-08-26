@@ -16,7 +16,7 @@
 
 /* The address space to use for unshadowed memory */
 #define XMEM_SHADOWED_START ((void *)0x8000)
-#define XMEM_SHADOWED_END   ((void *)0xA000)
+#define XMEM_SHADOWED_END   ((void *)0x9fff)
 
 struct bank_heap_state {
     void *__brkval;             /* Pointer between __malloc_heap_start and __malloc_heap_end, shows growth. */
