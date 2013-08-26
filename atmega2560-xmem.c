@@ -111,16 +111,16 @@ void xmem_switch_bank (uint8_t bank) {
     }
 
 #ifdef XMEM_HEAP_IN_XMEM
-/* Save the current bank heap state */
+    /* Save the current bank heap state */
     _xmem_save_bank_state(&_bank_state[_current_bank]);
 
-/* Load the bank heap state */
+    /* Load the bank heap state */
     _xmem_load_bank_state(&_bank_state[bank]);
 #endif /* XMEM_HEAP_IN_XMEM */
 
     _current_bank = bank;
 
-/* Have the user set the higher bits */
+    /* Have the user set the higher bits */
     XMEM_USER_SWITCH_BANK(bank);
 }
 
@@ -129,21 +129,21 @@ void xmem_switch_bank (uint8_t bank) {
  * Initializes the external memory and the internal data structures if we are managing the heap in the xmem.
  */
 void xmem_init () {
-/* TODO: Calculate the # of pins we need for the given memory and
-   calculate a mask for XMCRB. Save this mask because we will need it
-   to restore XMCRB later on if we want to access the first 8KB of XMEM.
-   This assumes we want all 8 bits from PORTC. */
+   /* TODO: Calculate the # of pins we need for the given memory and
+      calculate a mask for XMCRB. Save this mask because we will need it
+      to restore XMCRB later on if we want to access the first 8KB of XMEM.
+      This assumes we want all 8 bits from PORTC. */
     XMCRB = 0;
 
-/* XMEM Enable bit, entire xmem is treated like one sector and set the wait
-   states for it. */
+    /* XMEM Enable bit, entire xmem is treated like one sector and set the wait
+       states for it. */
     XMCRA = (1 << SRE) | (XMEM_WAIT_STATES << SRW10);
 
-/* Have the user configure his extra pins */
+    /* Have the user configure his extra pins */
     XMEM_USER_INIT();
 
 #ifdef XMEM_HEAP_IN_XMEM
-/* If heap should be in xmem ram then we should let avr-libc where is it. */
+    /* If heap should be in xmem ram then we should let avr-libc where is it. */
     __malloc_heap_start = (char *)XMEM_START;
     __malloc_heap_end = (char *)XMEM_END;
     __brkval = (char *)XMEM_START;
