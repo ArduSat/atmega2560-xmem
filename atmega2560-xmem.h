@@ -23,6 +23,8 @@ void xmem_switch_bank (uint8_t bank);
 void xmem_init (void);
 void *xmem_unshadow_lower_memory (void);
 void xmem_shadow_lower_memory (void);
+void xmem_set_xmem_heap (void);
+void xmem_set_system_heap (void);
 
 /* How many memory banks are there? */
 #if XMEM_TOTAL_MEMORY < 65536

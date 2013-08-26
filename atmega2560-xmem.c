@@ -35,7 +35,9 @@ extern "C" {
 }
 #endif
 
+struct bank_heap_state _system_heap_state;
 struct bank_heap_state _bank_state[XMEM_BANKS];
+uint8_t _system_heap_in_place = 0;
 uint8_t _current_bank = 0;
 
 /**
@@ -64,11 +66,9 @@ static void _xmem_load_bank_state (struct bank_heap_state *bs) {
  * @docstring
  * Unshadow the lower 8KB of the extended memory and return a pointer that
  * you can use to access it. You have to call the xmem_shadow_lower_memory when done.
- * The pointer returned is the start of your 8KB block of memory. */
+ * The pointer returned is the start of your 8KB block of memory.
+ */
 void *xmem_unshadow_lower_memory (void) {
-    /* Save current bank state */
-    _xmem_save_bank_state(&_bank_state[_current_bank]);
-
     /* Configures PORTC pins as output pins. */
     DDRC = 0xff;
 
@@ -86,7 +86,8 @@ void *xmem_unshadow_lower_memory (void) {
 
 /**
  * @docstring
- * Shadow the lower 8KB of the extended memory and set normal addressing pins. */
+ * Shadow the lower 8KB of the extended memory and set normal addressing pins.
+ */
 void xmem_shadow_lower_memory (void) {
     /* Configures PORTC pins as output pins. */
     DDRC = 0xff;
@@ -96,9 +97,6 @@ void xmem_shadow_lower_memory (void) {
 
     /* Set every pin to regular memory addressing duty. */
     XMCRB = 0;
-
-    /* Save current bank state */
-    _xmem_load_bank_state(&_bank_state[_current_bank]);
 }
 
 /**
@@ -110,13 +108,13 @@ void xmem_switch_bank (uint8_t bank) {
         return;
     }
 
-#ifdef XMEM_HEAP_IN_XMEM
-    /* Save the current bank heap state */
-    _xmem_save_bank_state(&_bank_state[_current_bank]);
+    if (!_system_heap_in_place) {
+        /* Save the current bank heap state */
+        _xmem_save_bank_state(&_bank_state[_current_bank]);
 
-    /* Load the bank heap state */
-    _xmem_load_bank_state(&_bank_state[bank]);
-#endif /* XMEM_HEAP_IN_XMEM */
+        /* And restore the state we are switching to. */
+        _xmem_load_bank_state(&_bank_state[bank]);
+    }
 
     _current_bank = bank;
 
@@ -126,9 +124,43 @@ void xmem_switch_bank (uint8_t bank) {
 
 /**
  * @docstring
+ * This will save the current bank state and return the heap to the
+ * internal memory. You can effectively stop xmem from being used for
+ * the heap if you use this function.
+ */
+void xmem_set_system_heap (void) {
+    if (_system_heap_in_place) {
+        return;
+    }
+
+    _xmem_save_bank_state(&_bank_state[_current_bank]);
+    _xmem_load_bank_state(&_system_heap_state);
+
+    _system_heap_in_place = 1;
+}
+
+/**
+ * @docstring
+ * This should be used after a call to xmem_set_system_heap. This will save
+ * the current internal memory heap state and return the heap to the extended
+ * memory using the current bank.
+ */
+void xmem_set_xmem_heap (void) {
+    if (!_system_heap_in_place) {
+        return;
+    }
+
+    _xmem_save_bank_state(&_system_heap_state);
+    _xmem_load_bank_state(&_bank_state[_current_bank]);
+
+    _system_heap_in_place = 0;
+}
+
+/**
+ * @docstring
  * Initializes the external memory and the internal data structures if we are managing the heap in the xmem.
  */
-void xmem_init () {
+void xmem_init (void) {
    /* TODO: Calculate the # of pins we need for the given memory and
       calculate a mask for XMCRB. Save this mask because we will need it
       to restore XMCRB later on if we want to access the first 8KB of XMEM.
@@ -139,10 +171,11 @@ void xmem_init () {
        states for it. */
     XMCRA = (1 << SRE) | (XMEM_WAIT_STATES << SRW10);
 
-    /* Have the user configure his extra pins */
+    /* Have the user configure his extra pins. */
     XMEM_USER_INIT();
 
-#ifdef XMEM_HEAP_IN_XMEM
+    _xmem_save_bank_state(&_system_heap_state);
+
     /* If heap should be in xmem ram then we should let avr-libc where is it. */
     __malloc_heap_start = (char *)XMEM_START;
     __malloc_heap_end = (char *)XMEM_END;
@@ -151,7 +184,7 @@ void xmem_init () {
     for (uint8_t i = 0; i < XMEM_BANKS; i++) {
         _xmem_save_bank_state(&_bank_state[i]);
     }
-#endif /* XMEM_HEAP_IN_XMEM */
 
+    _system_heap_in_place = 0;
     _current_bank = 0;
 }

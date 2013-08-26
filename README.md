@@ -17,12 +17,24 @@ leave the internal 8KB of RAM for stack space.
 
 `void xmem_init (void)`
 
-Initializes the Atmega2560 external memory interface and calls a user defined initialization code.
+Initializes the Atmega2560 external memory interface and calls a user defined initialization code. The
+library uses the external memory for the heap by default and the bank is set to 0. The first bank.
 
 `void xmem_switch_bank (uint8_t bank)`
 
-Switches between banks when more than one bank is available. If heap management is enabled it will
-also save and restore the banks heap configuration.
+Switches between banks when more than one bank is available. If the system heap is not being used it will
+also save and restore the bank heap configuration.
+
+`void xmem_set_system_heap (void)`
+
+This will save the current bank state and return the heap to the internal memory. You can still switch
+banks on external memory but the heap won't be moved so now you will be responsible for the usage of
+the external memory.
+
+`void xmem_set_xmem_heap (void)`
+
+This will save the system heap state and return the heap to the external memory using the current bank.
+Now any time you switch banks again the heap will be restored as well to use that bank.
 
 # Configuration
 
@@ -53,13 +65,4 @@ one of those chips you can configure the wait states with this define. The value
 - 0 = No wait-states.
 - 1 = Wait one cycle during read/write strobe.
 - 2 = Wait two cycles during read/write strobe.
-- 3 = Wait two cycles during read/write and wait one cycle before driving out new address */
-
-`#define XMEM_HEAP_IN_XMEM`
-
-Define this if you want avr-libc malloc()/free() heap allocation functions to use extended memory.
-Proper state will be maintained between banks for you by the library. You just have to switch banks
-if you ran out of memory in the one you are currently in.
-
-Please note that this will leave the internal mcu ram for stack space only unless you do some sorcery
-of your own.
+- 3 = Wait two cycles during read/write and wait one cycle before driving out new address.

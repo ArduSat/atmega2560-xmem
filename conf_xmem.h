@@ -44,9 +44,4 @@
    3 = Wait two cycles during read/write and wait one cycle before driving out new address */
 #define XMEM_WAIT_STATES  0
 
-/* Define this if you want malloc's heap to be moved to extended memory.
-   Please note that this will leave the internal mcu ram for stack space only unless you do
-   some sorcery on your own. */
-#define XMEM_HEAP_IN_XMEM
-
 #endif /* CONF_XMEM_H_INCLUDED */
