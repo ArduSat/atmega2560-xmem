@@ -25,6 +25,8 @@ void *xmem_unshadow_lower_memory (void);
 void xmem_shadow_lower_memory (void);
 void xmem_set_xmem_heap (void);
 void xmem_set_system_heap (void);
+void *xmem_get_current_bank_address_start (void);
+void *xmem_get_current_bank_address_end (void);
 
 /* How many memory banks are there? */
 #if XMEM_TOTAL_MEMORY < 65536

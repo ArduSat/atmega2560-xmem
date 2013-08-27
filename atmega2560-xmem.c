@@ -165,6 +165,22 @@ void xmem_set_xmem_heap (void) {
 
 /**
  * @docstring
+ * Returns the last valid address in the current selected bank.
+ */
+void *xmem_get_current_bank_address_start (void) {
+    return (void *)_bank_state[_current_bank].__malloc_heap_start;
+}
+
+/**
+ * @docstring
+ * Returns the last valid address in the current selected bank.
+ */
+void *xmem_get_current_bank_address_end (void) {
+    return (void *)_bank_state[_current_bank].__malloc_heap_end;
+}
+
+/**
+ * @docstring
  * Initializes the external memory and the internal data structures if we are managing the heap in the xmem.
  */
 void xmem_init (void) {

@@ -47,6 +47,15 @@ returned is the start of your 8KB block of memory.
 Shadow the lower 8KB of the extended memory and set normal addressing mode. You have to call this function
 after calling `xmem_unshadow_lower_memory` so you can address extended memory normally.
 
+`void *xmem_get_current_bank_address_start (void)`
+
+Return a pointer to the current bank's start address. This should always be 0x2200.
+
+`void *xmem_get_current_bank_address_end (void)`
+
+Return a pointer to the current bank's end address. This may change depending on the size of your memory.
+If you have only 32KB of external memory for example, this should return 0x7fff.
+
 # Configuration
 
 You can, and must, configure the behavior of this code by changing some `#define` statements in the
