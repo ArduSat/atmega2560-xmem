@@ -30,7 +30,7 @@ void xmem_set_system_heap (void);
 #if XMEM_TOTAL_MEMORY < 65536
 #define XMEM_BANKS           1
 #else
-#define XMEM_BANKS           ((uint32_t)XMEM_TOTAL_MEMORY>>16)
+#define XMEM_BANKS           ((uint8_t)((XMEM_TOTAL_MEMORY / 65536.0)+0.5))
 #endif
 
 #endif /* CONF_XMEM_H_INCLUDED */

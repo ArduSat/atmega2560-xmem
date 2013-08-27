@@ -10,6 +10,13 @@
 #include "conf_xmem.h"
 #include "atmega2560-xmem.h"
 
+/* If memory is not a multiple of 64KB we need to find out what's the last bank size. */
+#if (XMEM_TOTAL_MEMORY % 65536) == 0
+#define XMEM_LAST_BANK_END  ((void *)0xffff)
+#else
+#define XMEM_LAST_BANK_END  ((void *)((XMEM_TOTAL_MEMORY % 65536) - 1))
+#endif
+
 /* Atmega XMEM address space block */
 #define XMEM_START      ((void *)0x2200)
 #define XMEM_END        ((void *)0xffff)
@@ -38,7 +45,7 @@ extern "C" {
 struct bank_heap_state _system_heap_state;
 struct bank_heap_state _bank_state[XMEM_BANKS];
 uint8_t _system_heap_in_place = 0;
-uint8_t _current_bank = 0;
+uint8_t _current_bank = -1;
 
 /**
  * @docstring
@@ -181,10 +188,16 @@ void xmem_init (void) {
     __malloc_heap_end = (char *)XMEM_END;
     __brkval = (char *)XMEM_START;
 
-    for (uint8_t i = 0; i < XMEM_BANKS; i++) {
+    /* All banks except the last one have 64KB size. */
+    for (uint8_t i = 0; i < XMEM_BANKS - 1; i++) {
         _xmem_save_bank_state(&_bank_state[i]);
     }
 
+    /* Save the last bank with the correct address space size. */
+    __malloc_heap_end = (char *)XMEM_LAST_BANK_END;
+    _xmem_save_bank_state(&_bank_state[XMEM_BANKS - 1]);
+
     _system_heap_in_place = 0;
-    _current_bank = 0;
+
+    xmem_switch_bank(0);
 }
