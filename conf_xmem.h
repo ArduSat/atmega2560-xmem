@@ -23,7 +23,7 @@
 /* This is the bank switch needed for the Megaram (128KB) shield for Arduino Mega 2560.
    PD7 is bank selector so we only have to set one bit to 0 or 1. */
 #define XMEM_EXAMPLE_MEGARAM_USER_SWITCH_BANK(bank_) \
-    PORTD &= 0x7F | ((bank_ & 1) << 7);
+    PORTD = 0x7F | ((bank_ & 1) << 7);
 
 /* Does your board have special initialization?
    This only applies if you have mroe than 64KB of external memory and want
