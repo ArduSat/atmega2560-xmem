@@ -7,7 +7,7 @@ APPNAME = 'atmega2560-xmem'
 VERSION = '1.0'
 
 def options(ctx):
-  ctx.add_option('--toolchain', action='store', default='avr', help='Set toolchain prefix')
+  ctx.add_option('--toolchain', action='store', default='', help='Set toolchain prefix')
   ctx.add_option('--mcu', default='atmega2560', help='Set CPU type')
   ctx.add_option('--fcpu', default='8000000UL', help='Set CPU frequency')
 
@@ -15,8 +15,8 @@ def options(ctx):
   gr.add_option('--with-xmem-config-path', metavar="CONFIG", default='module_config', help='Set the path to the configuration file.')
 
 def configure(ctx):
-  ctx.env.CC = ctx.options.toolchain + "-gcc"
-  ctx.env.AR = ctx.options.toolchain + "-ar"
+  ctx.env.CC = ctx.options.toolchain + "gcc"
+  ctx.env.AR = ctx.options.toolchain + "ar"
 
   mcu = ctx.env.MCU = ctx.options.mcu
   fcpu = ctx.env.FCPU = ctx.options.fcpu
@@ -31,7 +31,7 @@ def configure(ctx):
   ])
 
   ctx.load('gcc')
-  ctx.find_program(ctx.options.toolchain + '-size', var='SIZE')
+  ctx.find_program(ctx.options.toolchain + 'size', var='SIZE')
 
   # Setup CFLAGS
   ctx.env.prepend_value('CFLAGS', ['-Os','-Wall', '-g', '-std=gnu99'])
