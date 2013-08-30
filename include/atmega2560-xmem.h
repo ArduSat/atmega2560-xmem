@@ -33,6 +33,7 @@ void *xmem_get_current_bank_address_end (void);
 #define XMEM_BANKS           1
 #else
 #define XMEM_BANKS           ((uint8_t)((XMEM_TOTAL_MEMORY / 65536.0)+0.5))
+#define XMEM_USE_BANKING
 #endif
 
 #endif /* CONF_XMEM_H_INCLUDED */
