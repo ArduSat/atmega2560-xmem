@@ -21,7 +21,6 @@ def configure(ctx):
   mcu = ctx.env.MCU = ctx.options.mcu
   fcpu = ctx.env.FCPU = ctx.options.fcpu
 
-
   ctx.env.append_unique('CFLAGS', [
     '-Wall', '-Wextra', '-Wno-unused-parameter',
     '-Wno-missing-field-initializers', '-Os', '-std=gnu99', '-fshort-enums',
@@ -37,7 +36,7 @@ def configure(ctx):
   ctx.env.prepend_value('CFLAGS', ['-Os','-Wall', '-g', '-std=gnu99'])
 
   if ctx.options.with_xmem_config_path:
-    ctx.options.with_xmem_config_path = os.path.abspath(ctx.options.with_xmem_config_path)
+    ctx.env.with_xmem_config_path = os.path.abspath(ctx.options.with_xmem_config_path)
 
 def build(ctx):
   install_path = False
@@ -46,7 +45,7 @@ def build(ctx):
 
   ctx.stlib(source=ctx.path.ant_glob('src/**/*.c'),
             target='atmega2560-xmem',
-            includes = ['include', ctx.options.with_xmem_config_path],
+            includes = ['include', ctx.env.with_xmem_config_path],
             export_includes = ['include'],
             cflags = ctx.env.CFLAGS + ['-Wno-cast-align'],
             install_path = install_path)
