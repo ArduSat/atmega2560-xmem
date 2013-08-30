@@ -204,7 +204,7 @@ void xmem_init (void) {
     __malloc_heap_end = (char *)XMEM_END;
     __brkval = (char *)XMEM_START;
 
-#ifdef XMEM_USE_BANKKING
+#ifdef XMEM_USE_BANKING
     /* All banks except the last one have 64KB size. */
     for (uint8_t i = 0; i < XMEM_BANKS - 1; i++) {
         _xmem_save_bank_state(&_bank_state[i]);
