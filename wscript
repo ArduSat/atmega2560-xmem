@@ -22,18 +22,14 @@ def configure(ctx):
   fcpu = ctx.env.FCPU = ctx.options.fcpu
 
   ctx.env.append_unique('CFLAGS', [
-    '-Wall', '-Wextra', '-Wno-unused-parameter',
-    '-Wno-missing-field-initializers', '-Os', '-std=gnu99', '-fshort-enums',
+    '-Wall', '-Wextra', '-Wno-unused-parameter', '-fshort-enums',
+    '-Wno-missing-field-initializers', '-Os', '-std=gnu99',
     '-funsigned-char', '-funsigned-bitfields', '-fdata-sections',
-    '-ffunction-sections', '-mmcu='+mcu,
-    '-DF_CPU=' + fcpu
+    '-ffunction-sections', '-mmcu=' + mcu, '-DF_CPU=' + fcpu
   ])
 
   ctx.load('gcc')
   ctx.find_program(ctx.options.toolchain + 'size', var='SIZE')
-
-  # Setup CFLAGS
-  ctx.env.prepend_value('CFLAGS', ['-Os','-Wall', '-g', '-std=gnu99'])
 
   if ctx.options.with_xmem_config_path:
     ctx.env.with_xmem_config_path = os.path.abspath(ctx.options.with_xmem_config_path)
